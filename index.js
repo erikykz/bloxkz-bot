@@ -17,18 +17,21 @@ const commands = [
     .toJSON()
 ];
 
-const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
-
 client.once('ready', async () => {
   console.log(`Bloxkz Bot online como ${client.user.tag}`);
 
-  try {
-    await rest.put(
-      Routes.applicationCommands(client.user.id),
-      { body: commands }
-    );
+  const rest = new REST({ version: '10' })
+    .setToken(process.env.DISCORD_TOKEN);
 
-    console.log('Comando /bloxkz registrado!');
+  try {
+    for (const guild of client.guilds.cache.values()) {
+      await rest.put(
+        Routes.applicationGuildCommands(client.user.id, guild.id),
+        { body: commands }
+      );
+    }
+
+    console.log('Comando /bloxkz registrado no servidor!');
   } catch (error) {
     console.error(error);
   }

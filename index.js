@@ -13,11 +13,11 @@ const client = new Client({
 const commands = [
   new SlashCommandBuilder()
     .setName('bloxkz')
-    .setDescription('Mostra informações sobre o bot da Bloxkz.')
+    .setDescription('Mostra informações sobre a Bloxkz.')
     .toJSON()
 ];
 
-client.once('ready', async () => {
+client.once('clientReady', async () => {
   console.log(`Bloxkz Bot online como ${client.user.tag}`);
 
   const rest = new REST({ version: '10' })
@@ -29,11 +29,11 @@ client.once('ready', async () => {
         Routes.applicationGuildCommands(client.user.id, guild.id),
         { body: commands }
       );
-    }
 
-    console.log('Comando /bloxkz registrado no servidor!');
+      console.log(`Comando /bloxkz registrado no servidor ${guild.name}!`);
+    }
   } catch (error) {
-    console.error(error);
+    console.error('Erro ao registrar comando:', error);
   }
 });
 

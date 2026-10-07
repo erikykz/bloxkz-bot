@@ -14,14 +14,14 @@ const client = new Client({
 });
 
 const fruits = [
-  ['dragon', '🐉 Dragon', 50.00, 1],
-  ['kitsune', '🦊 Kitsune', 20.00, 1],
-  ['magnet', '🧲 Magnet', 45.00, 1],
-  ['tiger', '🐯 Tiger', 10.00, 1],
+  ['dragon', '🐉 Dragon', 50.00, 0],
+  ['kitsune', '🦊 Kitsune', 20.00, 0],
+  ['magnet', '🧲 Magnet', 45.00, 0],
+  ['tiger', '🐯 Tiger', 10.00, 0],
   ['yeti', '🥶 Yeti', 9.00, 2],
   ['control', '🎛️ Control', 12.00, 1],
   ['gas', '💨 Gas', 6.50, 1],
-  ['dough', '🍩 Dough', 4.00, 1],
+  ['dough', '🍩 Dough', 4.00, 0],
   ['venom', '☠️ Venom', 5.00, 2],
   ['spirit', '👻 Spirit', 4.00, 1],
   ['shadow', '🌑 Shadow', 2.00, 2],
@@ -64,11 +64,15 @@ client.on('interactionCreate', async interaction => {
         .setCustomId('fruit_select')
         .setPlaceholder('🍎 Escolha uma fruta')
         .addOptions(
-          fruits.map(([value, label]) =>
+          fruits.map(([value, label, price, stock]) =>
             new StringSelectMenuOptionBuilder()
               .setLabel(label.replace(/^.{2} /, ''))
               .setValue(value)
-              .setDescription('Clique para ver preço e estoque')
+              .setDescription(
+                stock > 0
+                  ? `R$ ${price.toFixed(2).replace('.', ',')} • ${stock} em estoque`
+                  : '🔴 Sem estoque'
+              )
           )
         );
 
@@ -95,7 +99,7 @@ client.on('interactionCreate', async interaction => {
       const [id, name, price, stock] = selectedFruit;
 
       const status = stock > 0
-        ? `🟢 ${stock} unidade${stock > 1 ? 's' : ''} disponível${stock > 1 ? 'eis' : ''}`
+        ? `🟢 ${stock} unidade${stock > 1 ? 's' : ''} disponível${stock > 1 ? 'is' : ''}`
         : '🔴 Sem estoque';
 
       await interaction.reply({

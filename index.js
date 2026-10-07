@@ -4,6 +4,7 @@ const {
   REST,
   Routes,
   SlashCommandBuilder,
+  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder
@@ -14,18 +15,18 @@ const client = new Client({
 });
 
 const fruits = [
-  ['dragon', '🐉 Dragon', 50.00, 0],
-  ['kitsune', '🦊 Kitsune', 20.00, 0],
-  ['magnet', '🧲 Magnet', 45.00, 0],
-  ['tiger', '🐯 Tiger', 10.00, 0],
-  ['yeti', '🥶 Yeti', 9.00, 2],
-  ['control', '🎛️ Control', 12.00, 1],
-  ['gas', '💨 Gas', 6.50, 1],
-  ['dough', '🍩 Dough', 4.00, 0],
-  ['venom', '☠️ Venom', 5.00, 2],
-  ['spirit', '👻 Spirit', 4.00, 1],
-  ['shadow', '🌑 Shadow', 2.00, 2],
-  ['gravity', '🪐 Gravity', 2.50, 2]
+  ['dragon', '🐉', 'Dragão', 50.00, 0],
+  ['kitsune', '🦊', 'Kitsune', 20.00, 0],
+  ['magnet', '🧲', 'Magnet', 45.00, 0],
+  ['tiger', '🐯', 'Tiger', 10.00, 0],
+  ['yeti', '🥶', 'Yeti', 9.00, 2],
+  ['control', '🌀', 'Control', 12.00, 1],
+  ['gas', '💨', 'Gas', 6.50, 0],
+  ['dough', '🍩', 'Dough', 4.00, 1],
+  ['venom', '☠️', 'Venom', 5.00, 2],
+  ['spirit', '👻', 'Spirit', 4.00, 1],
+  ['shadow', '🌑', 'Shadow', 2.00, 2],
+  ['gravity', '🪐', 'Gravity', 2.50, 2]
 ];
 
 const commands = [
@@ -60,18 +61,36 @@ client.on('interactionCreate', async interaction => {
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === 'bloxkz') {
 
+      const embed = new EmbedBuilder()
+        .setColor('#2563EB')
+        .setTitle('🍎 BLOXKZ — FRUTAS')
+        .setDescription(
+          'Confira nossas frutas, valores e disponibilidade abaixo. 💙\n'
+        )
+        .addFields(
+          fruits.map(([id, emoji, name, price, stock]) => ({
+            name: `${emoji} ${name}`,
+            value:
+              `💰 **Valor:** R$ ${price.toFixed(2).replace('.', ',')} — ` +
+              `📦 **Estoque:** ${stock}`,
+            inline: false
+          }))
+        )
+        .setFooter({
+          text: 'Bloxkz • Qualidade e confiança em cada troca.'
+        });
+
       const menu = new StringSelectMenuBuilder()
         .setCustomId('fruit_select')
         .setPlaceholder('🍎 Escolha uma fruta')
         .addOptions(
-          fruits.map(([value, label, price, stock]) =>
+          fruits.map(([value, emoji, name, price, stock]) =>
             new StringSelectMenuOptionBuilder()
-              .setLabel(label.replace(/^.{2} /, ''))
+              .setLabel(name)
               .setValue(value)
+              .setEmoji(emoji)
               .setDescription(
-                stock > 0
-                  ? `R$ ${price.toFixed(2).replace('.', ',')} • ${stock} em estoque`
-                  : '🔴 Sem estoque'
+                `R$ ${price.toFixed(2).replace('.', ',')} • ${stock} em estoque`
               )
           )
         );
@@ -79,9 +98,7 @@ client.on('interactionCreate', async interaction => {
       const row = new ActionRowBuilder().addComponents(menu);
 
       await interaction.reply({
-        content:
-          '🍎 **ESTOQUE BLOXKZ**\n\n' +
-          'Selecione uma fruta abaixo para consultar preço e disponibilidade. 💙',
+        embeds: [embed],
         components: [row]
       });
     }
@@ -96,17 +113,33 @@ client.on('interactionCreate', async interaction => {
 
       if (!selectedFruit) return;
 
-      const [id, name, price, stock] = selectedFruit;
+      const [id, emoji, name, price, stock] = selectedFruit;
 
       const status = stock > 0
         ? `🟢 ${stock} unidade${stock > 1 ? 's' : ''} disponível${stock > 1 ? 'is' : ''}`
         : '🔴 Sem estoque';
 
+      const embed = new EmbedBuilder()
+        .setColor('#2563EB')
+        .setTitle(`${emoji} ${name}`)
+        .addFields(
+          {
+            name: '💰 Valor',
+            value: `R$ ${price.toFixed(2).replace('.', ',')}`,
+            inline: true
+          },
+          {
+            name: '📦 Estoque',
+            value: status,
+            inline: true
+          }
+        )
+        .setFooter({
+          text: 'Bloxkz • Confira a disponibilidade antes de comprar.'
+        });
+
       await interaction.reply({
-        content:
-          `🍎 **${name}**\n\n` +
-          `💰 **Preço:** R$ ${price.toFixed(2).replace('.', ',')}\n` +
-          `📦 **Estoque:** ${status}`,
+        embeds: [embed],
         ephemeral: true
       });
     }

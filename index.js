@@ -20,13 +20,13 @@ const fruits = [
   ['magnet', '🧲', 'Magnet', 45.00, 0],
   ['tiger', '🐯', 'Tiger', 10.00, 0],
   ['yeti', '🥶', 'Yeti', 9.00, 0],
-  ['control', '🌀', 'Control', 12.00, 3],
+  ['control', '🌀', 'Control', 12.00, 2],
   ['gas', '💨', 'Gas', 6.50, 0],
   ['dough', '🍩', 'Dough', 4.00, 1],
   ['venom', '☠️', 'Venom', 5.00, 2],
-  ['spirit', '👻', 'Spirit', 4.00, 2],
+  ['spirit', '👻', 'Spirit', 4.00, 1],
   ['shadow', '🌑', 'Shadow', 2.00, 2],
-  ['gravity', '🪐', 'Gravity', 2.50, 2]
+  ['gravity', '🪐', 'Gravity', 2.50, 0]
 ];
 
 const commands = [

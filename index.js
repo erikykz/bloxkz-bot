@@ -1,4 +1,3 @@
-
 const {
   Client,
   GatewayIntentBits,
@@ -8,278 +7,553 @@ const {
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
-  StringSelectMenuBuilder,
-  PermissionFlagsBits
-} = require('discord.js');
+  ButtonStyle
+} = require("discord.js");
 
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require("node:fs");
+const path = require("node:path");
 
-const OWNER_ID = '1087079514569461871';
 const TOKEN = process.env.DISCORD_TOKEN;
-const DATA_FILE = path.join(__dirname, 'data.json');
+const CLIENT_ID = process.env.CLIENT_ID;
+const GUILD_ID = process.env.GUILD_ID;
+const OWNER_ID = "1087079514569461871";
+const DATA_FILE = path.join(__dirname, "data.json");
+const PER_PAGE = 3;
+
+if (!TOKEN) {
+  console.error("Configure DISCORD_TOKEN na hospedagem.");
+  process.exit(1);
+}
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds]
 });
 
+const DEFAULT_FRUITS = [
+  {
+    id: "dragon",
+    name: "Dragon",
+    price: 80,
+    stock: 0,
+    image: "https://wikiassets.net/bloxfruits-3bec24/images/c17c3878fc62726beca8774a107e2e09.webp"
+  },
+  {
+    id: "kitsune",
+    name: "Kitsune",
+    price: 20,
+    stock: 0,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/6/65/Kitsune_Fruit.png/revision/latest?cb=20241223162956"
+  },
+  {
+    id: "magnet",
+    name: "Magnet",
+    price: 45,
+    stock: 0,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/2/2f/Magnet_Fruit.png/revision/latest?cb=20260905110645"
+  },
+  {
+    id: "tiger",
+    name: "Tiger",
+    price: 11,
+    stock: 0,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/1/14/Tiger_Fruit.png/revision/latest?cb=20251101005924"
+  },
+  {
+    id: "yeti",
+    name: "Yeti",
+    price: 10,
+    stock: 0,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/2/2f/Yeti_Fruit.png/revision/latest?cb=20260806232444"
+  },
+  {
+    id: "control",
+    name: "Control",
+    price: 12,
+    stock: 2,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/1/19/Control_Fruit.png/revision/latest?cb=20251223165924"
+  },
+  {
+    id: "gas",
+    name: "Gas",
+    price: 6.5,
+    stock: 0,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/e/ed/Gas_Fruit.png/revision/latest?cb=20241223162315"
+  },
+  {
+    id: "dough",
+    name: "Dough",
+    price: 4.5,
+    stock: 1,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/0/02/Dough_Fruit.png/revision/latest?cb=20260806235727"
+  },
+  {
+    id: "venom",
+    name: "Venom",
+    price: 5,
+    stock: 2,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/d/d2/Venom_Fruit.png/revision/latest?cb=20231027120425"
+  },
+  {
+    id: "spirit",
+    name: "Spirit",
+    price: 4,
+    stock: 1,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/6/66/Spirit_Fruit.png/revision/latest?cb=20240304190559"
+  },
+  {
+    id: "shadow",
+    name: "Shadow",
+    price: 3,
+    stock: 2,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/5/58/Shadow_Fruit.png/revision/latest?cb=20241229033053"
+  },
+  {
+    id: "gravity",
+    name: "Gravity",
+    price: 2.5,
+    stock: 0,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/5/5f/Gravity_Fruit.png/revision/latest?cb=20250418030958"
+  },
+  {
+    id: "mammoth",
+    name: "Mammoth",
+    price: 0,
+    stock: 0,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/9/95/Mammoth_Fruit.png/revision/latest?cb=20260806235956"
+  },
+  {
+    id: "trex",
+    name: "T-Rex",
+    price: 0,
+    stock: 0,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/d/d9/T-Rex_Fruit.png/revision/latest?cb=20231226191220"
+  },
+  {
+    id: "lightning",
+    name: "Lightning",
+    price: 0,
+    stock: 0,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/7/78/Lightning_Fruit.png/revision/latest?cb=20260806235926"
+  },
+  {
+    id: "portal",
+    name: "Portal",
+    price: 0,
+    stock: 0,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/8/8a/Portal_Fruit.png/revision/latest?cb=20231027115746"
+  },
+  {
+    id: "buddha",
+    name: "Buddha",
+    price: 0,
+    stock: 0,
+    image: "https://static.wikia.nocookie.net/roblox-blox-piece/images/d/df/Buddha_Fruit.png/revision/latest?cb=20231027115325"
+  }
+];
+
 function loadData() {
   try {
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    if (!fs.existsSync(DATA_FILE)) {
+      fs.writeFileSync(
+        DATA_FILE,
+        JSON.stringify({ fruits: DEFAULT_FRUITS }, null, 2)
+      );
+    }
+
+    const parsed = JSON.parse(
+      fs.readFileSync(DATA_FILE, "utf8")
+    );
+
+    if (!Array.isArray(parsed.fruits)) {
+      throw new Error('O arquivo precisa ter uma lista "fruits".');
+    }
+
+    const fruits = parsed.fruits.map(fruit => {
+      const defaults = DEFAULT_FRUITS.find(
+        item => item.id === fruit.id
+      );
+
+      return defaults
+        ? {
+            ...defaults,
+            ...fruit,
+            image: fruit.image || defaults.image || ""
+          }
+        : fruit;
+    });
+
+    for (const defaults of DEFAULT_FRUITS) {
+      if (!fruits.some(fruit => fruit.id === defaults.id)) {
+        fruits.push(defaults);
+      }
+    }
+
+    parsed.fruits = fruits;
+
+    fs.writeFileSync(
+      DATA_FILE,
+      JSON.stringify(parsed, null, 2)
+    );
+
+    return parsed;
   } catch (error) {
-    console.error('Erro ao ler data.json:', error);
-    return { fruits: [] };
+    console.error("Erro ao ler data.json:", error.message);
+    process.exit(1);
   }
 }
 
-function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+let storeData = loadData();
+
+function saveData() {
+  fs.writeFileSync(
+    DATA_FILE,
+    JSON.stringify(storeData, null, 2)
+  );
+}
+
+function isOwner(interaction) {
+  return interaction.user.id === OWNER_ID;
 }
 
 function money(value) {
-  return Number(value).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
+  return Number(value).toLocaleString("pt-BR", {
+    minimumFractionDigits:
+      Number.isInteger(Number(value)) ? 0 : 2,
+    maximumFractionDigits: 2
   });
 }
 
-function makePanel(page = 0) {
-  const data = loadData();
-  const fruits = data.fruits || [];
-  const pageSize = 5;
-  const pages = Math.max(1, Math.ceil(fruits.length / pageSize));
-  page = Math.max(0, Math.min(page, pages - 1));
-
-  const current = fruits.slice(page * pageSize, (page + 1) * pageSize);
-
-  const embed = new EmbedBuilder()
-    .setColor('#2563EB')
-    .setTitle('🍎 BLOXKZ — ESTOQUE DE FRUTAS')
-    .setDescription(
-      'Confira os preços e a disponibilidade das frutas abaixo.\n' +
-      'Para consultar uma fruta, use o menu. 💙'
-    )
-    .setFooter({ text: `Bloxkz • Página ${page + 1}/${pages}` });
-
-  for (const fruit of current) {
-    embed.addFields({
-      name: `${fruit.name} ${fruit.stock > 0 ? '🟢' : '🔴'}`,
-      value: `💰 **Preço:** ${money(fruit.price)}\n📦 **Estoque:** ${fruit.stock}`,
-      inline: true
-    });
+function priceText(fruit) {
+  if (
+    !Number.isFinite(Number(fruit.price)) ||
+    Number(fruit.price) <= 0
+  ) {
+    return "Preço a definir";
   }
 
-  const menu = new StringSelectMenuBuilder()
-    .setCustomId('bloxkz:select')
-    .setPlaceholder('🍎 Selecione uma fruta para ver detalhes')
-    .addOptions(
-      current.map(fruit => ({
-        label: fruit.name.slice(0, 100),
-        value: fruit.id,
-        description: `${money(fruit.price)} • Estoque: ${fruit.stock}`.slice(0, 100)
-      }))
-    );
+  return `R$ ${money(fruit.price)}`;
+}
 
-  const selectRow = new ActionRowBuilder().addComponents(menu);
+function stockText(fruit) {
+  return Number(fruit.stock) > 0
+    ? `🟢 ${fruit.stock} disponível(is)`
+    : "🔴 Sem estoque";
+}
 
-  const buttons = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`bloxkz:prev:${page}`)
-      .setLabel('◀ Anterior')
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(page === 0),
-    new ButtonBuilder()
-      .setCustomId(`bloxkz:next:${page}`)
-      .setLabel('Próxima ▶')
-      .setStyle(ButtonStyle.Primary)
-      .setDisabled(page >= pages - 1)
+function fruitEmbed(fruit, index) {
+  const embed = new EmbedBuilder()
+    .setColor(0x2546a8)
+    .setTitle(fruit.name)
+    .setDescription(
+      `💰 **Preço:** ${priceText(fruit)}\n` +
+      `📦 **Estoque:** ${stockText(fruit)}`
+    )
+    .setFooter({
+      text: `Bloxkz • Fruta ${index + 1}`
+    });
+
+  if (
+    fruit.image &&
+    /^https?:\/\/\S+$/i.test(fruit.image)
+  ) {
+    embed.setThumbnail(fruit.image);
+  }
+
+  return embed;
+}
+
+function panelComponents(page, totalPages) {
+  return [
+    new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`bloxkz_prev_${page}`)
+        .setLabel("◀ Anterior")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(page <= 0),
+
+      new ButtonBuilder()
+        .setCustomId(`bloxkz_page_${page}`)
+        .setLabel(`${page + 1}/${totalPages}`)
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(true),
+
+      new ButtonBuilder()
+        .setCustomId(`bloxkz_next_${page}`)
+        .setLabel("Próxima ▶")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(page >= totalPages - 1)
+    )
+  ];
+}
+
+function panelPayload(page = 0) {
+  const fruits = storeData.fruits;
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(fruits.length / PER_PAGE)
   );
 
-  return { embeds: [embed], components: [selectRow, buttons] };
+  const safePage = Math.min(
+    Math.max(page, 0),
+    totalPages - 1
+  );
+
+  const start = safePage * PER_PAGE;
+
+  const pageFruits = fruits.slice(
+    start,
+    start + PER_PAGE
+  );
+
+  const header = new EmbedBuilder()
+    .setColor(0x172554)
+    .setTitle("🧢 BLOXKZ • LOJA DE FRUTAS")
+    .setDescription(
+      "Confira os preços e o estoque abaixo.\n" +
+      "Frutas sem preço definido não estão disponíveis para compra ainda."
+    )
+    .setFooter({
+      text: `Página ${safePage + 1}/${totalPages} • Bloxkz`
+    });
+
+  return {
+    embeds: [
+      header,
+      ...pageFruits.map((fruit, i) =>
+        fruitEmbed(fruit, start + i)
+      )
+    ],
+    components: panelComponents(safePage, totalPages)
+  };
 }
 
 const commands = [
   new SlashCommandBuilder()
-    .setName('bloxkz')
-    .setDescription('Abre o painel de frutas da Bloxkz.'),
+    .setName("bloxkz")
+    .setDescription("Mostra o painel da loja Bloxkz"),
 
   new SlashCommandBuilder()
-    .setName('estoque')
-    .setDescription('Mostra o estoque atual da Bloxkz.')
+    .setName("estoque")
+    .setDescription("Altera o estoque de uma fruta (somente dono)")
     .addStringOption(option =>
-      option.setName('fruta')
-        .setDescription('ID da fruta (ex.: control, dragon, portal)')
-        .setRequired(true))
+      option
+        .setName("fruta")
+        .setDescription("ID da fruta, por exemplo venom")
+        .setRequired(true)
+    )
     .addIntegerOption(option =>
-      option.setName('quantidade')
-        .setDescription('Nova quantidade em estoque')
+      option
+        .setName("quantidade")
+        .setDescription("Nova quantidade em estoque")
+        .setMinValue(0)
         .setRequired(true)
-        .setMinValue(0))
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    ),
 
   new SlashCommandBuilder()
-    .setName('preco')
-    .setDescription('Altera o preço de uma fruta.')
+    .setName("preco")
+    .setDescription("Altera o preço de uma fruta (somente dono)")
     .addStringOption(option =>
-      option.setName('fruta')
-        .setDescription('ID da fruta (ex.: control, dragon, portal)')
-        .setRequired(true))
+      option
+        .setName("fruta")
+        .setDescription("ID da fruta, por exemplo venom")
+        .setRequired(true)
+    )
     .addNumberOption(option =>
-      option.setName('valor')
-        .setDescription('Novo preço em reais')
+      option
+        .setName("valor")
+        .setDescription("Preço em reais; use 0 para deixar a definir")
+        .setMinValue(0)
         .setRequired(true)
-        .setMinValue(0))
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    ),
 
   new SlashCommandBuilder()
-    .setName('imagem')
-    .setDescription('Define a imagem de uma fruta por URL.')
+    .setName("imagem")
+    .setDescription("Altera a imagem de uma fruta (somente dono)")
     .addStringOption(option =>
-      option.setName('fruta')
-        .setDescription('ID da fruta')
-        .setRequired(true))
+      option
+        .setName("fruta")
+        .setDescription("ID da fruta, por exemplo dragon")
+        .setRequired(true)
+    )
     .addStringOption(option =>
-      option.setName('url')
-        .setDescription('URL direta da imagem')
-        .setRequired(true))
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+      option
+        .setName("url")
+        .setDescription("URL direta da imagem")
+        .setRequired(true)
+    )
 ].map(command => command.toJSON());
 
-client.once('ready', async () => {
-  console.log(`Bloxkz online como ${client.user.tag}`);
-
-  if (!TOKEN) {
-    console.error('DISCORD_TOKEN não foi configurado.');
+async function registerCommands() {
+  if (!CLIENT_ID || !GUILD_ID) {
+    console.warn(
+      "CLIENT_ID ou GUILD_ID não configurados. Comandos não registrados automaticamente."
+    );
     return;
   }
 
-  const rest = new REST({ version: '10' }).setToken(TOKEN);
+  const rest = new REST({ version: "10" }).setToken(TOKEN);
+
+  await rest.put(
+    Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
+    { body: commands }
+  );
+
+  console.log("Comandos slash registrados no servidor Bloxkz.");
+}
+
+client.once("ready", async () => {
+  console.log(`Bloxkz online como ${client.user.tag}`);
 
   try {
-    for (const guild of client.guilds.cache.values()) {
-      await rest.put(
-        Routes.applicationGuildCommands(client.user.id, guild.id),
-        { body: commands }
-      );
-      console.log(`Comandos registrados em ${guild.name}`);
-    }
+    await registerCommands();
   } catch (error) {
-    console.error('Erro ao registrar comandos:', error);
+    console.error("Erro ao registrar comandos:", error);
   }
 });
 
-client.on('interactionCreate', async interaction => {
+client.on("interactionCreate", async interaction => {
   try {
     if (interaction.isChatInputCommand()) {
-      if (interaction.commandName === 'bloxkz') {
-        return interaction.reply(makePanel(0));
+      if (interaction.commandName === "bloxkz") {
+        await interaction.reply(panelPayload(0));
+        return;
       }
 
-      if (interaction.user.id !== OWNER_ID) {
-        return interaction.reply({
-          content: '⛔ Somente o dono da Bloxkz pode usar esse comando.',
-          ephemeral: true
-        });
-      }
-
-      const data = loadData();
-      const fruitId = interaction.options.getString('fruta').toLowerCase();
-      const fruit = data.fruits.find(item => item.id === fruitId);
-
-      if (!fruit) {
-        return interaction.reply({
-          content: `❌ Fruta "${fruitId}" não encontrada. Use o ID cadastrado no data.json.`,
-          ephemeral: true
-        });
-      }
-
-      if (interaction.commandName === 'estoque') {
-        fruit.stock = interaction.options.getInteger('quantidade');
-        saveData(data);
-        return interaction.reply({
-          content: `✅ Estoque de **${fruit.name}** atualizado para **${fruit.stock}**.`,
-          ephemeral: true
-        });
-      }
-
-      if (interaction.commandName === 'preco') {
-        fruit.price = interaction.options.getNumber('valor');
-        saveData(data);
-        return interaction.reply({
-          content: `✅ Preço de **${fruit.name}** atualizado para **${money(fruit.price)}**.`,
-          ephemeral: true
-        });
-      }
-
-      if (interaction.commandName === 'imagem') {
-        const url = interaction.options.getString('url');
-        if (!/^https?:\/\/\S+$/i.test(url)) {
-          return interaction.reply({
-            content: '❌ Informe uma URL HTTP ou HTTPS válida.',
+      if (
+        ["estoque", "preco", "imagem"].includes(
+          interaction.commandName
+        )
+      ) {
+        if (!isOwner(interaction)) {
+          await interaction.reply({
+            content: "❌ Só o dono da Bloxkz pode usar esse comando.",
             ephemeral: true
           });
+          return;
         }
-        fruit.image = url;
-        saveData(data);
-        return interaction.reply({
-          content: `✅ Imagem de **${fruit.name}** atualizada.`,
-          ephemeral: true
-        });
+
+        const fruitId = interaction
+          .options
+          .getString("fruta", true)
+          .toLowerCase()
+          .trim();
+
+        const fruit = storeData.fruits.find(item =>
+          item.id.toLowerCase() === fruitId ||
+          item.name.toLowerCase() === fruitId
+        );
+
+        if (!fruit) {
+          await interaction.reply({
+            content:
+              "❌ Fruta não encontrada. IDs disponíveis: " +
+              storeData.fruits.map(item => item.id).join(", "),
+            ephemeral: true
+          });
+          return;
+        }
+
+        if (interaction.commandName === "estoque") {
+          fruit.stock = interaction.options.getInteger(
+            "quantidade",
+            true
+          );
+
+          saveData();
+
+          await interaction.reply({
+            content:
+              `✅ Estoque de **${fruit.name}** atualizado para **${fruit.stock}**.`,
+            ephemeral: true
+          });
+          return;
+        }
+
+        if (interaction.commandName === "preco") {
+          fruit.price = interaction.options.getNumber(
+            "valor",
+            true
+          );
+
+          saveData();
+
+          await interaction.reply({
+            content:
+              `✅ Preço de **${fruit.name}** atualizado para **${priceText(fruit)}**.`,
+            ephemeral: true
+          });
+          return;
+        }
+
+        if (interaction.commandName === "imagem") {
+          const url = interaction
+            .options
+            .getString("url", true)
+            .trim();
+
+          if (!/^https?:\/\/\S+$/i.test(url)) {
+            await interaction.reply({
+              content: "❌ Envie uma URL começando com http:// ou https://.",
+              ephemeral: true
+            });
+            return;
+          }
+
+          fruit.image = url;
+          saveData();
+
+          await interaction.reply({
+            content: `✅ Imagem de **${fruit.name}** atualizada.`,
+            ephemeral: true
+          });
+          return;
+        }
       }
     }
 
     if (interaction.isButton()) {
-      const [prefix, action, pageText] = interaction.customId.split(':');
-      if (prefix !== 'bloxkz') return;
+      const match = interaction.customId.match(
+        /^bloxkz_(prev|next)_([0-9]+)$/
+      );
 
-      const page = Number(pageText);
-      const newPage = action === 'next' ? page + 1 : page - 1;
-      return interaction.update(makePanel(newPage));
-    }
+      if (!match) return;
 
-    if (interaction.isStringSelectMenu() && interaction.customId === 'bloxkz:select') {
-      const data = loadData();
-      const fruit = data.fruits.find(item => item.id === interaction.values[0]);
+      const direction = match[1];
+      const currentPage = Number(match[2]);
 
-      if (!fruit) {
-        return interaction.reply({
-          content: 'Essa fruta não está mais cadastrada.',
-          ephemeral: true
-        });
-      }
+      const nextPage =
+        direction === "next"
+          ? currentPage + 1
+          : currentPage - 1;
 
-      const embed = new EmbedBuilder()
-        .setColor('#2563EB')
-        .setTitle(`🍎 ${fruit.name}`)
-        .setDescription(
-          `💰 **Preço:** ${money(fruit.price)}\n` +
-          `📦 **Estoque:** ${fruit.stock > 0 ? `${fruit.stock} disponível(is)` : 'Sem estoque'}`
-        )
-        .setFooter({ text: 'Bloxkz • Confira a disponibilidade antes de comprar.' });
-
-      if (fruit.image) embed.setThumbnail(fruit.image);
-
-      return interaction.reply({ embeds: [embed], ephemeral: true });
+      await interaction.update(panelPayload(nextPage));
     }
   } catch (error) {
-    console.error('Erro na interação:', error);
+    console.error("Erro ao processar interação:", error);
 
-    const response = {
-      content: '❌ Ocorreu um erro. Confira os logs do bot.',
-      ephemeral: true
-    };
+    const message =
+      "❌ Ocorreu um erro. Confira os logs da hospedagem.";
 
-    if (interaction.replied || interaction.deferred) {
-      return interaction.followUp(response).catch(() => {});
+    if (
+      interaction.isRepliable() &&
+      !interaction.replied &&
+      !interaction.deferred
+    ) {
+      await interaction.reply({
+        content: message,
+        ephemeral: true
+      }).catch(() => {});
+    } else if (
+      interaction.isRepliable() &&
+      interaction.deferred
+    ) {
+      await interaction.followUp({
+        content: message,
+        ephemeral: true
+      }).catch(() => {});
     }
-    return interaction.reply(response).catch(() => {});
   }
 });
 
-if (!TOKEN) {
-  console.error('Configure a variável DISCORD_TOKEN no FadeHost.');
-} else {
-  client.login(TOKEN);
-          }
-  
+client.login(TOKEN);

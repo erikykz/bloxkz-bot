@@ -1,22 +1,124 @@
 
 {
   "fruits": [
-    { "id": "dragon", "name": "Dragon", "price": 80, "stock": 0, "image": "" },
-    { "id": "kitsune", "name": "Kitsune", "price": 20, "stock": 0, "image": "" },
-    { "id": "magnet", "name": "Magnet", "price": 45, "stock": 0, "image": "" },
-    { "id": "tiger", "name": "Tiger", "price": 11, "stock": 0, "image": "" },
-    { "id": "yeti", "name": "Yeti", "price": 10, "stock": 0, "image": "" },
-    { "id": "control", "name": "Control", "price": 12, "stock": 2, "image": "" },
-    { "id": "gas", "name": "Gas", "price": 6.5, "stock": 0, "image": "" },
-    { "id": "dough", "name": "Dough", "price": 4.5, "stock": 1, "image": "" },
-    { "id": "venom", "name": "Venom", "price": 5, "stock": 2, "image": "" },
-    { "id": "spirit", "name": "Spirit", "price": 4, "stock": 1, "image": "" },
-    { "id": "shadow", "name": "Shadow", "price": 3, "stock": 2, "image": "" },
-    { "id": "gravity", "name": "Gravity", "price": 2.5, "stock": 0, "image": "" },
-    { "id": "mammoth", "name": "Mammoth", "price": 0, "stock": 0, "image": "" },
-    { "id": "trex", "name": "T-Rex", "price": 0, "stock": 0, "image": "" },
-    { "id": "lightning", "name": "Lightning", "price": 0, "stock": 0, "image": "" },
-    { "id": "portal", "name": "Portal", "price": 0, "stock": 0, "image": "" },
-    { "id": "buddha", "name": "Buddha", "price": 0, "stock": 0, "image": "" }
+    {
+      "id": "dragon",
+      "name": "Dragon",
+      "price": 80,
+      "stock": 0,
+      "image": "https://wikiassets.net/bloxfruits-3bec24/images/c17c3878fc62726beca8774a107e2e09.webp"
+    },
+    {
+      "id": "kitsune",
+      "name": "Kitsune",
+      "price": 20,
+      "stock": 0,
+      "image": ""
+    },
+    {
+      "id": "magnet",
+      "name": "Magnet",
+      "price": 45,
+      "stock": 0,
+      "image": ""
+    },
+    {
+      "id": "tiger",
+      "name": "Tiger",
+      "price": 11,
+      "stock": 0,
+      "image": ""
+    },
+    {
+      "id": "yeti",
+      "name": "Yeti",
+      "price": 10,
+      "stock": 0,
+      "image": ""
+    },
+    {
+      "id": "control",
+      "name": "Control",
+      "price": 12,
+      "stock": 2,
+      "image": ""
+    },
+    {
+      "id": "gas",
+      "name": "Gas",
+      "price": 6.5,
+      "stock": 0,
+      "image": ""
+    },
+    {
+      "id": "dough",
+      "name": "Dough",
+      "price": 4.5,
+      "stock": 1,
+      "image": ""
+    },
+    {
+      "id": "venom",
+      "name": "Venom",
+      "price": 5,
+      "stock": 2,
+      "image": ""
+    },
+    {
+      "id": "spirit",
+      "name": "Spirit",
+      "price": 4,
+      "stock": 1,
+      "image": ""
+    },
+    {
+      "id": "shadow",
+      "name": "Shadow",
+      "price": 3,
+      "stock": 2,
+      "image": ""
+    },
+    {
+      "id": "gravity",
+      "name": "Gravity",
+      "price": 2.5,
+      "stock": 0,
+      "image": ""
+    },
+    {
+      "id": "mammoth",
+      "name": "Mammoth",
+      "price": 0,
+      "stock": 0,
+      "image": ""
+    },
+    {
+      "id": "trex",
+      "name": "T-Rex",
+      "price": 0,
+      "stock": 0,
+      "image": ""
+    },
+    {
+      "id": "lightning",
+      "name": "Lightning",
+      "price": 0,
+      "stock": 0,
+      "image": ""
+    },
+    {
+      "id": "portal",
+      "name": "Portal",
+      "price": 0,
+      "stock": 0,
+      "image": ""
+    },
+    {
+      "id": "buddha",
+      "name": "Buddha",
+      "price": 0,
+      "stock": 0,
+      "image": ""
+    }
   ]
 }
